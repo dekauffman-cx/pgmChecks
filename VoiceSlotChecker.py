@@ -47,11 +47,10 @@ def PrintByOpposite(vsdict, vflist):
     wavList = list()
     for i in vflist:
         if i not in vsdict.keys():
-            print(i + ": is not found in voice config")
+            print(i)
 
 def OppositeRead(f,vflist):
-    """take the files aand build a voice list"""
-    print(f)
+    """take the files and build a voice list"""
     wavPattern = re.compile(r'^.+\"([a-zA-Z0-9_]+.wav)\"')
     try: 
         f3 = open(f,'r')
@@ -71,12 +70,10 @@ def ReadFile(f,vsdict):
        else adds one to the dictionary value """
     wavPattern = re.compile(r'^.+\"([a-zA-Z0-9_]+.wav)\"')
     try:
-        #print("perusing file " + f)
         f2 = open(f,'r')
         for line in f2:
             if re.search(wavPattern, line) is not None:
                 wavname = wavPattern.search(line).group(1)
-                #print(wavname.rstrip())
                 if wavname in vsdict:
                     vsdict[wavname] += 1
                 else:
@@ -94,15 +91,15 @@ def AppRead(vsdict, vflist):
         listSubDir = list()
         listFiles = list()
         listDir = gb.glob("*/")
-        #print(listDir)
         listDir.sort()
         for dir in listDir:
             while not op.exists(dir):
                 os.chdir("../")
             os.chdir(dir)
+            print(dir.rjust(20))
             listSubDir = gb.glob("*/")
-            #print(listSubDir)
             for sd in listSubDir:
+                print(sd.rjust(30))
                 os.chdir(sd)
                 listPrompts = list()
                 listSays = list()
@@ -111,7 +108,6 @@ def AppRead(vsdict, vflist):
                 masterList = listPrompts + listSays
                 for arr in masterList:
                     for fileToRead in arr:
-                        #print(fileToRead)
                         ReadFile(fileToRead, vsdict)
                         OppositeRead(fileToRead, vflist)
                 masterList.clear()
@@ -133,10 +129,7 @@ def HashRead(fname, vsdict):
                 print("directory: " + line)
             else:
                 vsName = vsName.rstrip()
-                #print(vsName)
-                if vsName in vsdict:
-                    print(vsName + " exists in dictionary")
-                else:
+                if vsName not in vsdict:
                     vsdict[vsName] = 0
         f1.close()
     except IOError:
