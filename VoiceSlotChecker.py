@@ -77,8 +77,8 @@ def ReadFile(f,vsdict):
                 if wavname in vsdict:
                     vsdict[wavname] += 1
                 else:
-                    print("Voice Slot Dictionary has no voice slot: " + wavname)
-                    print("Check your spelling on this page: " + f)            
+                    print("Voice Slot Dictionary has no voice slot " + wavname + ': ' + f)
+                    #print("Check your spelling on this page: " + f)
         f2.close()
     except IOError:
         print("problem with the file: " + f + " " + str(sys.exc_info()))
@@ -115,7 +115,7 @@ def AppRead(vsdict, vflist):
         listSubDir.clear()
 
 def HashRead(fname, vsdict):
-    """Reads the file and creates a dicitonary of voiceslots with 0 values. 
+    """Reads the file and creates a dictionary of voiceslots with 0 values. 
        Checks for duplicates and language."""  
     try:
         wavP = re.compile(r'^.+.wav')
