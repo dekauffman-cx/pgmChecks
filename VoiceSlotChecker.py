@@ -49,6 +49,15 @@ def PrintByOpposite(vsdict, vflist):
         if i not in vsdict.keys():
             print(i)
 
+def PrintVoiceMissing(vsdict, vflist):
+    """prints missing voice"""
+    print("------------------------------------------------")
+    print("               missing program voice voice slots")
+    
+    for i in vsdict.keys():
+        if i not in vflist:
+            print(i)
+
 def OppositeRead(f,vflist):
     """take the files and build a voice list"""
     wavPattern = re.compile(r'^.+\"([a-zA-Z0-9_]+.wav)\"')
@@ -147,9 +156,10 @@ def main():
                 listVoice = list()
                 HashRead(fname, voiceHash)
                 AppRead(voiceHash, listVoice)
-                PrintVoiceHashByKey(voiceHash)
-                PrintVoiceHashByValue(voiceHash)
+                #PrintVoiceHashByKey(voiceHash)
+                #PrintVoiceHashByValue(voiceHash)
                 PrintByOpposite(voiceHash, listVoice)
+                PrintVoiceMissing(voiceHash, listVoice)
             else:
                 print("File doesn't exist in the path.")
                 print("Please check that file exists and is named voiceslot.config")
