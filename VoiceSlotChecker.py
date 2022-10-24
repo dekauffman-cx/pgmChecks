@@ -101,14 +101,17 @@ def AppRead(vsdict, vflist):
         listFiles = list()
         listDir = gb.glob("*/")
         listDir.sort()
-        for dir in listDir:
+        listDir.reverse()
+        while len(listDir) > 0:
+            dir = listDir.pop(0)
             while not op.exists(dir):
                 os.chdir("../")
             os.chdir(dir)
             print(dir.rjust(20))
             listSubDir = gb.glob("*/")
-            for sd in listSubDir:
-                print(sd.rjust(30))
+            while len(listSubDir) > 0:
+                sd = listSubDir.pop(0)
+                print(sd.ljust(20))
                 os.chdir(sd)
                 listPrompts = list()
                 listSays = list()
@@ -121,7 +124,7 @@ def AppRead(vsdict, vflist):
                         OppositeRead(fileToRead, vflist)
                 masterList.clear()
                 os.chdir("../")
-        listSubDir.clear()
+            listSubDir.clear()
 
 def HashRead(fname, vsdict):
     """Reads the file and creates a dictionary of voiceslots with 0 values. 
@@ -169,3 +172,4 @@ def main():
         print("Usage: ~dekauffm/bin/VoiceSlotChecker.py /path/to/client/application/")
 
 main()
+ 
