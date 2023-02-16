@@ -27,7 +27,7 @@ def ExcelWrite(voiceFilePath, vDict):
     """creating Excel file to store the information """
     try:
         bn = op.basename(voiceFilePath)
-        #print("path: " + voiceFilePath)
+        print("path: " + voiceFilePath)
         with xw.Workbook(voiceFilePath +'/PCH_' + bn + '.xlsx') as wb:
             header = wb.add_format({'bold': 1, "text_wrap": True})
             wrap = wb.add_format({'text_wrap': True})
@@ -124,7 +124,7 @@ def LoadExcel(ef, voiceDict, missingFiles):
             rVoice = sheet_obj.cell(i, 2).value
             wavFile = rVoice.strip() + '.wav'
             path = os.getcwd()
-            print(numRows, path, rp, rVoice)
+            print(i, numRows, path, rp, rVoice)
             rowText = sheet_obj.cell(i, 3).value
             if (os.path.basename(path) != rp.strip()): 
                 os.chdir("..")
