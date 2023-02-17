@@ -78,6 +78,7 @@ def GetRecognition(path, wav, textFromFile, vDict):
     try:
         d = {}
         tr = sr.Recognizer()
+        combPathWav = path + '/' + wav
         if op.isfile(wav) == True:
             temp = 'temp.' + wav
             os.system("touch " + temp)
@@ -85,27 +86,31 @@ def GetRecognition(path, wav, textFromFile, vDict):
             os.system(cmd)
             p = '777'
             os.chmod(temp, int(p, base = 8))
-            combPatWav = path + '/' + wav
             with sr.AudioFile(temp) as source:
                 audio_data = tr.record(source)
                 textOfAudio = tr.recognize_google(audio_data, language='en-US')
             (ratio, pr) = Compare(textOfAudio, textFromFile)
             os.remove(temp)
-            if combPatWav in vDict:
+            if combPathWav in vDict:
                 print("this shouldn't happen With all unique keys")
             else:
                 d = {"TextOfAudio": textOfAudio, "TextFromFile": textFromFile, "ratio": ratio, "partial_ratio": pr }
-                vDict[combPatWav] = d
+                vDict[combPathWav] = d
         else:
             textOfAudio = "Voice File does not exist"
             d = {"TextOfAudio": textOfAudio, "TextFromFile": textFromFile, "ratio": 0, "partial_ratio": 0 }
-            vDict[combPatWav] = d
-    except: 
+            vDict[combPathWav] = d
+    except UnboundLocalError: 
         tb = sys.exc_info()
         message = "check the content of this file"
         d = {"TextOfAudio": message, "TextFromFile": textFromFile, "ratio": 0, "partial_ratio": 0 }
-        vDict[combPatWav] = d
-        
+        vDict[combPathWav] = d
+    except FileNotFoundError:
+        textOfAudio = "Voice File does not exist"
+        d = {"TextOfAudio": textOfAudio, "TextFromFile": textFromFile, "ratio": 0, "partial_ratio": 0 }
+        vDict[combPathWav] = d
+
+
 def LoadExcel(ef, voiceDict, missingFiles):
     print(ef)
     try:
@@ -126,11 +131,14 @@ def LoadExcel(ef, voiceDict, missingFiles):
             path = os.getcwd()
             print(i, numRows, path, rp, rVoice)
             rowText = sheet_obj.cell(i, 3).value
-            if (os.path.basename(path) != rp.strip()): 
+            if (os.path.basename(path) != rp.strip()):
+                print(rp)
                 os.chdir("..")
-                os.chdir(rp)
+                os.chdir(rp.rstrip())
+                print(op.basename(path))
                 listVoice = os.listdir('.')
                 print(listVoice)
+            print(rp, op.basename(path))
             if wavFile not in listVoice:
                missingFiles.append(wavFile)
             GetRecognition(rp, wavFile, rowText, voiceDict)
@@ -139,7 +147,7 @@ def LoadExcel(ef, voiceDict, missingFiles):
         tb = sys.exc_info()
         print(tb)
         print(rVoice)
-        #sys.exit(1)
+        print(op.basename(path))
 
 def do_CheckPaths(vp, ef):
     """checking paths to make sure they exist """
