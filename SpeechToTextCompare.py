@@ -26,11 +26,14 @@ from fuzzywuzzy import process #need to install the above module along with fuzz
 def ExcelWrite(voiceFilePath, vDict):
     """creating Excel file to store the information """
     try:
+        os.chdir(voiceFilePath)
         bn = op.basename(voiceFilePath)
         print("path: " + voiceFilePath)
+        print("basename: " + op.basename(voiceFilePath))
         with xw.Workbook(voiceFilePath +'/PCH_' + bn + '.xlsx') as wb:
             header = wb.add_format({'bold': 1, "text_wrap": True})
             wrap = wb.add_format({'text_wrap': True})
+            under_65 = wb.add_format({"text_wrap": True, "bg_color": "yellow"})
             listKeys = sorted(vDict)
             sheets = []
             for i in listKeys:
@@ -51,16 +54,23 @@ def ExcelWrite(voiceFilePath, vDict):
                     ws.set_column(3, 4, 8) 
                     ws.write(0,4, "Fuzzy Partial Ratio", header)
                     row = 1
-                ws.write(row, 0, voice)                
                 innerDict = list(vDict[i].values())
                 textOfAUdio  = innerDict[0]
                 textFromFile = innerDict[1]
                 ratio = innerDict[2]
                 partialRatio = innerDict[3]
-                ws.write(row, 1, textFromFile, wrap)
-                ws.write(row, 2, textOfAUdio, wrap)
-                ws.write(row, 3, ratio)
-                ws.write(row, 4, partialRatio)
+                if ratio < 65:
+                    ws.write(row, 0, voice, under_65)
+                    ws.write(row, 1, textFromFile,under_65)
+                    ws.write(row, 2, textOfAUdio, under_65)
+                    ws.write(row, 3, ratio, under_65)
+                    ws.write(row, 4, partialRatio, under_65)
+                else:
+                    ws.write(row, 0, voice)
+                    ws.write(row, 1, textFromFile, wrap)
+                    ws.write(row, 2, textOfAUdio, wrap)
+                    ws.write(row, 3, ratio)
+                    ws.write(row, 4, partialRatio)
                 row += 1
 
     except: 
@@ -105,6 +115,11 @@ def GetRecognition(path, wav, textFromFile, vDict):
         message = "check the content of this file"
         d = {"TextOfAudio": message, "TextFromFile": textFromFile, "ratio": 0, "partial_ratio": 0 }
         vDict[combPathWav] = d
+    except sr.UnknownValueError: 
+        tb = sys.exc_info()
+        message = "check the content of this file"
+        d = {"TextOfAudio": message, "TextFromFile": textFromFile, "ratio": 0, "partial_ratio": 0 }
+        vDict[combPathWav] = d
     except FileNotFoundError:
         textOfAudio = "Voice File does not exist"
         d = {"TextOfAudio": textOfAudio, "TextFromFile": textFromFile, "ratio": 0, "partial_ratio": 0 }
@@ -131,7 +146,7 @@ def LoadExcel(ef, voiceDict, missingFiles):
             path = os.getcwd()
             print(i, numRows, path, rp, rVoice)
             rowText = sheet_obj.cell(i, 3).value
-            if (os.path.basename(path) != rp.strip()):
+            if op.basename(path) != rp.strip():
                 print(rp)
                 os.chdir("..")
                 os.chdir(rp.rstrip())
